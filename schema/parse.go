@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 )
 
-func ParseFile(filePath string)(string){
+func ParseFile(filePath string) string {
 	c, err := ioutil.ReadFile(filePath)
 
 	if err != nil {

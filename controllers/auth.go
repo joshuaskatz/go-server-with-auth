@@ -13,9 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
-
-func Login(c *gin.Context){
+func Login(c *gin.Context) {
 	DB := db.OpenConnection()
 
 	defer DB.Close()
@@ -24,8 +22,8 @@ func Login(c *gin.Context){
 
 	if err := c.BindJSON(&input); err != nil {
 		errors.BadRequest(c)
-        return
-    }
+		return
+	}
 
 	user, err := getUser(input.Email)
 
@@ -34,25 +32,24 @@ func Login(c *gin.Context){
 		return
 	}
 
-	match := utils.CheckPasswordHash(input.Password, user.PasswordHash)
-
-	if !match {
+	if match := utils.CheckPasswordHash(input.Password, user.PasswordHash); !match {
 		errors.BadRequest(c)
 		return
 	}
 
 	jwt, jwtErr := utils.GenerateJWT(user.Email)
 
+	println(&jwtErr)
 
 	if jwtErr != nil {
 		errors.BadRequest(c)
 		return
 	}
-	
+
 	c.IndentedJSON(http.StatusCreated, jwt)
 }
 
-func Register(c *gin.Context){
+func Register(c *gin.Context) {
 	DB := db.OpenConnection()
 
 	defer DB.Close()
@@ -61,13 +58,12 @@ func Register(c *gin.Context){
 
 	if err := c.BindJSON(&input); err != nil {
 		errors.BadRequest(c)
-        return
-    }
-	
+		return
+	}
+
 	filePath, _ := filepath.Abs("./schema/user/insert.sql")
 
-
-	query := schema.ParseFile(filePath)	
+	query := schema.ParseFile(filePath)
 
 	passwordHash, hashErr := utils.HashPassword(input.Password)
 
@@ -77,41 +73,35 @@ func Register(c *gin.Context){
 
 	sqlStatement := fmt.Sprintf(query, input.Email, passwordHash)
 
-	_, err := DB.Query(sqlStatement)
-
-	if err != nil {
+	if _, err := DB.Query(sqlStatement); err != nil {
 		errors.EmailInUse(c)
 	}
 
-	// Return 204
 	c.Writer.WriteHeader(204)
 }
 
-func getUser (email string) (models.User , error) {
+func getUser(email string) (models.User, error) {
 	DB := db.OpenConnection()
 
 	defer DB.Close()
-	
+
 	filePath, _ := filepath.Abs("./schema/user/select.sql")
 
-    query := schema.ParseFile(filePath)	
-	
+	query := schema.ParseFile(filePath)
+
 	sqlStatement := fmt.Sprintf(query, email)
 
 	row := DB.QueryRow(sqlStatement)
 
-	err := row.Err()
-
-	if err != nil {
+	if err := row.Err(); err != nil {
 		return models.User{}, err
 	}
 
-	var user models.User 
+	var user models.User
 
 	if err := row.Scan(&user.ID, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt); err != nil {
 		return models.User{}, err
 	}
-	
+
 	return user, nil
 }
-

@@ -4,13 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 	"server/config"
-	"server/models"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
-var env = config.LoadEnv() 
+var env = config.LoadEnv()
 
 // OpenConnection - opens a connection to the database
 func OpenConnection() *sql.DB {
@@ -32,9 +31,9 @@ func OpenConnection() *sql.DB {
 }
 
 // Init - initialize Database and return a router
-func Init()(*gin.Engine){
+func Init() *gin.Engine {
 	db := OpenConnection()
-	
+
 	defer db.Close()
 
 	modelsInit(db)
@@ -44,14 +43,13 @@ func Init()(*gin.Engine){
 	return r
 }
 
-
-func modelsInit(db *sql.DB){
+func modelsInit(db *sql.DB) {
 	paths := []string{
 		"./schema/album/create.sql",
 		"./schema/user/create.sql",
 	}
 
-	for _, path := range(paths) {
-		models.CreateTable(db, path)
+	for _, path := range paths {
+		CreateTable(db, path)
 	}
 }

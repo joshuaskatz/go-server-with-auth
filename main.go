@@ -5,11 +5,7 @@ import (
 	"server/routes"
 )
 
-
-
-
-
-func main(){
+func main() {
 	router := db.Init()
 
 	public := router.Group("/api")
@@ -18,13 +14,8 @@ func main(){
 	// Routes
 	routes.AlbumRoutes(protected)
 	routes.AuthRoutes(public)
-	 
 
-	err := router.Run("localhost:8080")
-
-	if err != nil {
+	if err := router.Run("localhost:8080"); err != nil {
 		panic(err)
 	}
 }
-
-

@@ -6,9 +6,9 @@ type UserInput struct {
 }
 
 type User struct {
-    ID string `json:"id"`
-	Email    string `json:"email"`
+	ID           string `json:"id"`
+	Email        string `json:"email"`
 	PasswordHash string `json:"password_hash"`
-    CreatedAt string `json:"createdAt"`	
-	UpdatedAt string `json:"updatedAt"`
+	CreatedAt    string `json:"createdAt"`
+	UpdatedAt    string `json:"updatedAt"`
 }
