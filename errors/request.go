@@ -13,7 +13,10 @@ func AlbumsNotFound(c *gin.Context){
 
 func UserNotFound(c *gin.Context){
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "user not found"})
+}
 
+func EmailInUse(c *gin.Context){
+	c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "email is in use"})
 }
 
 func BadRequest(c *gin.Context){

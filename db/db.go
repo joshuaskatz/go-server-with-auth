@@ -3,23 +3,18 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"server/config"
 	"server/models"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
-const (
-	host = "localhost"
-	port = 5432
-	user = "postgres"
-	password = "password"
-	dbname = "postgres"
-)
+var env = config.LoadEnv() 
 
 // OpenConnection - opens a connection to the database
 func OpenConnection() *sql.DB {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", env.DbHost, env.DbPort, env.DbUser, env.DbPassword, env.DbName)
 
 	db, err := sql.Open("postgres", psqlInfo)
 

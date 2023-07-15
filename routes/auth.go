@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AlbumRoutes(r *gin.Engine){
-	r.GET("/albums", controllers.GetAlbums)
-	r.POST("/albums", controllers.PostAlbum)
+func AuthRoutes(r *gin.RouterGroup){
+	r.POST("/register", controllers.Register)
+	r.POST("/login", controllers.Login)
 }

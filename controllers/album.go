@@ -71,17 +71,14 @@ func PostAlbum(c *gin.Context)  {
 
 	sqlStatement := fmt.Sprintf(query, input.Artist, input.Price, input.Title)
 
-	res, err := DB.Query(sqlStatement)
+	_, err := DB.Query(sqlStatement)
 
 	if err != nil {
 		 errors.BadRequest(c)
 		 return
 	}
 
-
-
-	c.IndentedJSON(http.StatusCreated, gin.H{
-		"id": res.Close(),
-	})
+	// Return 204
+	c.Writer.WriteHeader(204)
 }
 

@@ -12,11 +12,19 @@ import (
 func main(){
 	router := db.Init()
 
-	// Routes
-	routes.AlbumRoutes(router)
-	
+	public := router.Group("/api")
+	protected := router.Group("/api/admin")
 
-	router.Run("localhost:8080")
+	// Routes
+	routes.AlbumRoutes(protected)
+	routes.AuthRoutes(public)
+	 
+
+	err := router.Run("localhost:8080")
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 
