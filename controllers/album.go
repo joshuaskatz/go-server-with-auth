@@ -7,7 +7,7 @@ import (
 	"server/db"
 	"server/errors"
 	"server/models"
-	"server/schema"
+	"server/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +19,7 @@ func GetAlbums(c *gin.Context) {
 
 	filePath, _ := filepath.Abs("./schema/album/select.sql")
 
-	query := schema.ParseFile(filePath)
+	query := utils.ParseFile(filePath)
 
 	rows, err := DB.Query(query)
 
@@ -65,7 +65,7 @@ func PostAlbum(c *gin.Context) {
 
 	filePath, _ := filepath.Abs("./schema/album/insert.sql")
 
-	query := schema.ParseFile(filePath)
+	query := utils.ParseFile(filePath)
 
 	sqlStatement := fmt.Sprintf(query, input.Artist, input.Price, input.Title)
 

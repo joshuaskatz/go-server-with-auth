@@ -24,3 +24,21 @@ func BadRequest(c *gin.Context) {
 		"message": "there was an issue with your request",
 	})
 }
+
+func InvalidEmail(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		"message": "please enter a valid email address",
+	})
+}
+
+func InvalidPassword(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		"message": "please enter a valid password",
+	})
+}
+
+func UserNotVerified(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		"message": "your user is not verified yet",
+	})
+}

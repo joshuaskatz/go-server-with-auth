@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"server/config"
 	"strings"
@@ -26,6 +27,21 @@ func GenerateJWT(email string) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func ExtractClaims(tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, GetSecretKey)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, errors.New("Invalid JWT")
+
 }
 
 // This takes a JWT token as input and extracts the key used for verifying the token's signature.

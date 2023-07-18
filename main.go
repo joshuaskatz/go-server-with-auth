@@ -1,9 +1,12 @@
 package main
 
 import (
+	"server/config"
 	"server/db"
 	"server/routes"
 )
+
+var env = config.LoadEnv()
 
 func main() {
 	router := db.Init()
@@ -15,7 +18,7 @@ func main() {
 	routes.AlbumRoutes(protected)
 	routes.AuthRoutes(public)
 
-	if err := router.Run("localhost:8080"); err != nil {
+	if err := router.Run(env.ServerUrl); err != nil {
 		panic(err)
 	}
 }

@@ -15,6 +15,7 @@ type Env struct {
 	DbUser        string
 	DbName        string
 	DbPassword    string
+	ServerUrl     string
 }
 
 func LoadEnv() Env {
@@ -32,6 +33,7 @@ func LoadEnv() Env {
 	dbUser := os.Getenv("DB_USER")
 	dbName := os.Getenv("DB_NAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
+	serverUrl := os.Getenv("SERVER_URL")
 
 	parsedDbPort, err := strconv.Atoi(dbPort)
 
@@ -46,6 +48,7 @@ func LoadEnv() Env {
 		DbUser:        dbUser,
 		DbName:        dbName,
 		DbPassword:    dbPassword,
+		ServerUrl:     serverUrl,
 	}
 
 	return env

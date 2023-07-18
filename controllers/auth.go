@@ -7,7 +7,6 @@ import (
 	"server/db"
 	"server/errors"
 	"server/models"
-	"server/schema"
 	"server/utils"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +17,7 @@ func Login(c *gin.Context) {
 
 	defer DB.Close()
 
-	var input models.UserInput
+	var input models.AuthInput
 
 	if err := c.BindJSON(&input); err != nil {
 		errors.BadRequest(c)
@@ -54,7 +53,7 @@ func Register(c *gin.Context) {
 
 	defer DB.Close()
 
-	var input models.UserInput
+	var input models.AuthInput
 
 	if err := c.BindJSON(&input); err != nil {
 		errors.BadRequest(c)
@@ -63,7 +62,7 @@ func Register(c *gin.Context) {
 
 	filePath, _ := filepath.Abs("./schema/user/insert.sql")
 
-	query := schema.ParseFile(filePath)
+	query := utils.ParseFile(filePath)
 
 	passwordHash, hashErr := utils.HashPassword(input.Password)
 
@@ -87,7 +86,7 @@ func getUser(email string) (models.User, error) {
 
 	filePath, _ := filepath.Abs("./schema/user/select.sql")
 
-	query := schema.ParseFile(filePath)
+	query := utils.ParseFile(filePath)
 
 	sqlStatement := fmt.Sprintf(query, email)
 
