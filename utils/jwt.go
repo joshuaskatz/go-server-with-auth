@@ -13,11 +13,15 @@ import (
 
 var env = config.LoadEnv()
 
-func GenerateJWT(email string) (string, error) {
+func GenerateJWT(email string, verification bool) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["exp"] = time.Now().Add(10 * time.Minute).Unix()
+
+	if !verification {
+		claims["exp"] = time.Now().Add(10 * time.Minute).Unix()
+	}
+
 	claims["authorized"] = true
 	claims["user"] = email
 	tokenString, err := token.SignedString([]byte(env.JWTSigningKey))

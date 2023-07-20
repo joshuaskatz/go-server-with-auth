@@ -10,7 +10,39 @@ import (
 	"server/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
+
+func Verify(c *gin.Context) {
+	DB := db.OpenConnection()
+
+	defer DB.Close()
+
+	jwt := c.Param("jwt")
+	fmt.Println(jwt)
+
+	claims, err := utils.ExtractClaims(jwt)
+
+	if err != nil {
+		errors.BadRequest(c)
+		return
+	}
+
+	email := claims["user"].(string)
+
+	queryFilePath, _ := filepath.Abs("./schema/user/verify.sql")
+
+	query := utils.ParseFile(queryFilePath)
+
+	sqlStatement := fmt.Sprintf(query, email)
+
+	if _, err := DB.Query(sqlStatement); err != nil {
+		errors.BadRequest(c)
+		return
+	}
+
+	c.Writer.WriteHeader(204)
+}
 
 func Login(c *gin.Context) {
 	DB := db.OpenConnection()
@@ -19,12 +51,12 @@ func Login(c *gin.Context) {
 
 	var input models.AuthInput
 
-	if err := c.BindJSON(&input); err != nil {
+	if err := c.ShouldBindBodyWith(&input, binding.JSON); err != nil {
 		errors.BadRequest(c)
 		return
 	}
 
-	user, err := getUser(input.Email)
+	user, err := GetUser(input.Email)
 
 	if err != nil {
 		errors.UserNotFound(c)
@@ -36,9 +68,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	jwt, jwtErr := utils.GenerateJWT(user.Email)
-
-	println(&jwtErr)
+	jwt, jwtErr := utils.GenerateJWT(user.Email, false)
 
 	if jwtErr != nil {
 		errors.BadRequest(c)
@@ -55,7 +85,7 @@ func Register(c *gin.Context) {
 
 	var input models.AuthInput
 
-	if err := c.BindJSON(&input); err != nil {
+	if err := c.ShouldBindBodyWith(&input, binding.JSON); err != nil {
 		errors.BadRequest(c)
 		return
 	}
@@ -79,7 +109,7 @@ func Register(c *gin.Context) {
 	c.Writer.WriteHeader(204)
 }
 
-func getUser(email string) (models.User, error) {
+func GetUser(email string) (models.User, error) {
 	DB := db.OpenConnection()
 
 	defer DB.Close()
@@ -98,7 +128,7 @@ func getUser(email string) (models.User, error) {
 
 	var user models.User
 
-	if err := row.Scan(&user.ID, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt); err != nil {
+	if err := row.Scan(&user.ID, &user.Email, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt, &user.Verified, &user.VerificationCode); err != nil {
 		return models.User{}, err
 	}
 

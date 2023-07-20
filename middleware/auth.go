@@ -2,28 +2,27 @@ package middleware
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"path/filepath"
 	"regexp"
 	"server/config"
+	"server/controllers"
 	"server/db"
 	"server/errors"
 	"server/models"
 	"server/utils"
 
-	"gopkg.in/gomail.v2"
-
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"gopkg.in/gomail.v2"
 )
 
 var env = config.LoadEnv()
 
 func EmailValidation(c *gin.Context) {
+	var input models.AuthInput
 
-	input, _ := ioutil.ReadAll(c.Request.Body)
-
-	if err := c.BindJSON(&input); err != nil {
+	if err := c.ShouldBindBodyWith(&input, binding.JSON); err != nil {
 		errors.BadRequest(c)
 		return
 	}
@@ -46,10 +45,15 @@ func EmailValidation(c *gin.Context) {
 }
 
 func PasswordValidation(c *gin.Context) {
-	password := c.GetString("password")
+	var input models.AuthInput
+
+	if err := c.ShouldBindBodyWith(&input, binding.JSON); err != nil {
+		errors.BadRequest(c)
+		return
+	}
 
 	// Change this to match your parameters
-	match, err := regexp.MatchString(`^.{8,}$`, password)
+	match, err := regexp.MatchString(`^.{8,}$`, input.Password)
 
 	if !match {
 		errors.InvalidPassword(c)
@@ -69,12 +73,19 @@ func PasswordValidation(c *gin.Context) {
 func IsVerified(c *gin.Context) {
 	var input models.AuthInput
 
-	if err := c.BindJSON(&input); err != nil {
+	if err := c.ShouldBindBodyWith(&input, binding.JSON); err != nil {
 		errors.BadRequest(c)
 		return
 	}
 
-	if !input.Verified {
+	user, err := controllers.GetUser(input.Email)
+
+	if err != nil {
+		errors.BadRequest(c)
+		return
+	}
+
+	if !user.Verified {
 		errors.UserNotVerified(c)
 		return
 	}
@@ -89,16 +100,16 @@ func VerificationEmail(c *gin.Context) {
 
 	var input models.EmailTemplate
 
-	if err := c.BindJSON(&input); err != nil {
+	if err := c.ShouldBindBodyWith(&input, binding.JSON); err != nil {
 		errors.BadRequest(c)
 		return
 	}
 
-	queryFilePath, _ := filepath.Abs("./schema/user/insert.sql")
+	queryFilePath, _ := filepath.Abs("./schema/user/email.sql")
 
 	query := utils.ParseFile(queryFilePath)
 
-	jwt, err := utils.GenerateJWT(input.Email)
+	jwt, err := utils.GenerateJWT(input.Email, true)
 
 	if err != nil {
 		errors.BadRequest(c)
@@ -112,21 +123,20 @@ func VerificationEmail(c *gin.Context) {
 		return
 	}
 
-	url := env.ServerUrl + "/verify/" + jwt
+	url := "http://" + env.ServerUrl + "/api/verify/" + jwt
 
 	htmlFilePath, _ := filepath.Abs("./templates/email.html")
 
 	html := utils.ParseFile(htmlFilePath)
 
 	body := fmt.Sprintf(html, input.Email, url)
-
 	m := gomail.NewMessage()
-	m.SetHeader("From", "joshua.samuel.katz@gmail.com")
+	m.SetHeader("From", "fujin95@gmail.com")
 	m.SetHeader("To", input.Email)
 	m.SetHeader("Subject", "Verify your email!")
 	m.SetBody("text/html", body)
 
-	d := gomail.NewPlainDialer("smtp.example.com", 587, "user", "123456")
+	d := gomail.NewPlainDialer("smtp.gmail.com", 587, "fujin95@gmail.com", "fasaniocwzguilwl")
 
 	if err := d.DialAndSend(m); err != nil {
 		panic(err)

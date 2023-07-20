@@ -9,5 +9,6 @@ import (
 
 func AuthRoutes(r *gin.RouterGroup) {
 	r.POST("/register", middleware.EmailValidation, middleware.PasswordValidation, controllers.Register, middleware.VerificationEmail)
-	r.Use(middleware.EmailValidation, middleware.IsVerified).POST("/login", controllers.Login)
+	r.POST("/login", middleware.EmailValidation, middleware.IsVerified, controllers.Login)
+	r.POST("/verify/:jwt", controllers.Verify)
 }

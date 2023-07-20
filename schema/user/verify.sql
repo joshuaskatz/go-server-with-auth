@@ -1,3 +1,3 @@
 UPDATE users
-SET verification_code = '%s'
+SET verified = true
 WHERE email = '%s';
