@@ -40,7 +40,7 @@ _Note: There are also various authentication related middleware to check the val
 
 ---
 
-## _NOTE: This is not meant for use in production, but is rather just an example module build with Golang._
+## _NOTE: This is not meant for use in production, but is rather just an example module built with Golang._
 
 ### A few things I would add to make this more usable in a production context:
 
