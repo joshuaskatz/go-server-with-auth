@@ -131,12 +131,12 @@ func VerificationEmail(c *gin.Context) {
 
 	body := fmt.Sprintf(html, input.Email, url)
 	m := gomail.NewMessage()
-	m.SetHeader("From", "fujin95@gmail.com")
+	m.SetHeader("From", env.EmailUser)
 	m.SetHeader("To", input.Email)
 	m.SetHeader("Subject", "Verify your email!")
 	m.SetBody("text/html", body)
 
-	d := gomail.NewPlainDialer("smtp.gmail.com", 587, "fujin95@gmail.com", "fasaniocwzguilwl")
+	d := gomail.NewPlainDialer("smtp.gmail.com", 587, env.EmailUser, env.EmailPassword)
 
 	if err := d.DialAndSend(m); err != nil {
 		panic(err)
